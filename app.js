@@ -1,6 +1,7 @@
 const express = require("express");
 const logger = require("morgan");
 const mongoose = require("mongoose");
+const Recipe = require("./models/Recipe.model");
 
 const app = express();
 
@@ -31,7 +32,27 @@ app.get('/', (req, res) => {
 
 //  Iteration 3 - Create a Recipe route
 //  POST  /recipes route
-
+app.post("/recipes", (req, res) => {
+  // Create a new recipe using the data from req.body
+  Recipe.create({
+    title: req.body.title,
+    instructions: req.body.instructions,
+    level: req.body.level,
+    ingredients: req.body.ingredients,
+    image: req.body.image,
+    duration: req.body.duration,
+    isArchived: req.body.isArchived,
+    created: req.body.created
+  })
+    .then((createdRecipe) => {
+      // Respond with the newly created recipe and a 201 status code
+      res.status(201).json(createdRecipe);
+    })
+    .catch((err) => {
+      console.error("Error while creating a new recipe:", err);
+      res.status(500).json({ message: "Error while creating a new recipe" });
+    });
+});
 
 //  Iteration 4 - Get All Recipes
 //  GET  /recipes route
