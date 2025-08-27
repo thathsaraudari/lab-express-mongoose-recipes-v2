@@ -1,7 +1,7 @@
 const express = require("express");
 const logger = require("morgan");
 const mongoose = require("mongoose");
-const Recipe = require("./models/Recipe.model");
+const Recipe = require("./models/Recipe.model.js");
 
 const app = express();
 
@@ -34,6 +34,7 @@ app.get('/', (req, res) => {
 //  POST  /recipes route
 app.post("/recipes", (req, res) => {
   // Create a new recipe using the data from req.body
+  console.log(req.body.title);
   Recipe.create({
     title: req.body.title,
     instructions: req.body.instructions,
@@ -70,15 +71,51 @@ app.get('/recipes', (req, res) => {
 
 //  Iteration 5 - Get a Single Recipe
 //  GET  /recipes/:id route
+app.get("/recipes/:id", (req, res) => {
+
+    Recipe.findById(req.params.id)
+        .then((recipe) => {
+
+        res.status(200).json(recipe);
+    })
+
+        .catch((error) => {
+            console.log(error);
+            res.status(500).json({ message: " Error while getting all recipe"});
+        })
+});
 
 
 //  Iteration 6 - Update a Single Recipe
 //  PUT  /recipes/:id route
+app.put('/recipes/:recipeId', async (req, res) => {
+  try {
+    const updatedRecipe = await Recipe.findByIdAndUpdate(
+      req.params.recipeId,
+      req.body,
+      { new: true }
+    );
+    return res.status(200).json(updatedRecipe);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error, message: "problem updating recipe" });
+  }
+});
+
 
 
 //  Iteration 7 - Delete a Single Recipe
 //  DELETE  /recipes/:id route
-
+app.delete('/recipes/:recipeId', async(req, res) => {
+    const theRecipeId = req.params.recipeId
+    try {
+        const deletedRecipe = await Recipe.findByIdAndDelete()
+        res.status(200).json(deletedRecipe);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500).json({error, message: "problem deleting one receipe"});
+    }
+})
 
 
 // Start the server
@@ -88,3 +125,5 @@ app.listen(3000, () => console.log('My first app listening on port 3000!'));
 
 //❗️DO NOT REMOVE THE BELOW CODE
 module.exports = app;
+
+
